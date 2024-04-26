@@ -45,13 +45,12 @@ private:
 struct BinaryOperation : Expression { // «Бинарная операция»
 public:
 	BinaryOperation(Expression const* left, int op, Expression const* right) : left_(left), op_(op), right_(right) { assert(left_ && right_); }
-	~BinaryOperation() //в деструкторе освободим занятую память
-	{
+	~BinaryOperation() {
 		delete left_;
 		delete right_;
 	}
 
-	enum { // перечислим константы, которыми зашифруем символы операций
+	enum {
 		PLUS = '+',
 		MINUS = '-',
 		DIV = '/',
@@ -72,49 +71,54 @@ public:
 	}
 	Expression* transform(Transformer* tr) const { return tr->transformBinaryOperation(this); }
 	std::string print() const { return this->left_->print() + std::string(1, this->op_) + this->right_->print(); }
+
 private:
-	Expression const* left_; // указатель на левый операнд
-	Expression const* right_; // указатель на правый операнд
-	int op_; // символ операции
+	Expression const* left_;
+	Expression const* right_;
+	int op_;
 };
 
 
-struct FunctionCall : Expression { // структура «Вызов функции» в конструкторе надо учесть имя функции и ее аргумент
+struct FunctionCall : Expression {
+public:
 	FunctionCall(std::string const& name, Expression const* arg) : name_(name), arg_(arg) {
 		assert(arg_);
 		assert(name_ == "sqrt" || name_ == "abs");
 	} // разрешены только вызов sqrt и abs
+	~FunctionCall() { delete arg_; } // освобождаем память в деструкторе
+
 	std::string const& name() const { return name_; }
 	Expression const* arg() const { return arg_; }// чтение аргумента функции
-	~FunctionCall() { delete arg_; } // освобождаем память в деструкторе
 	virtual double evaluate() const { // реализация виртуального метода «вычислить»
 		if (name_ == "sqrt")
 			return sqrt(arg_->evaluate()); // либо вычисляем корень квадратный
 		return fabs(arg_->evaluate());
-	} // либо модуль — остальные функции
-//запрещены
+	} // либо модуль — остальные функции запрещены
 	std::string print() const { return this->name_ + "(" + this->arg_->print() + ")"; }
 	Expression* transform(Transformer* tr) const { return tr->transformFunctionCall(this); }
+
 private:
-	std::string const name_; // имя функции
-	Expression const* arg_; // указатель на ее аргумент
+	std::string const name_;
+	Expression const* arg_;
 };
 
 
-struct Variable : Expression { // структура «Переменная»
-	Variable(std::string const& name) : name_(name) {} //в конструкторе надо
-	//указать ее имя
+struct Variable : Expression { 
+public:
+	Variable(std::string const& name) : name_(name) {}
+
 	std::string const& name() const { return name_; } // чтение имени переменной
-	double evaluate() const // реализация виртуального метода «вычислить»
-	{ return 0.0; }
+	double evaluate() const { return 0.0; } // реализация виртуального метода «вычислить»
 	std::string print() const { return this->name_; }
 	Expression* transform(Transformer* tr) const { return tr->transformVariable(this); }
+
 private:
 	std::string const name_; // имя переменной
 };
 
-//Реализован класс CopySyntaxTree
+
 struct CopySyntaxTree : Transformer {
+public:
 	Expression* transformNumber(Number const* number) {
 		Expression* exp = new Number(number->value());
 		return exp;
@@ -131,64 +135,45 @@ struct CopySyntaxTree : Transformer {
 		Expression* exp = new Variable(var->name());
 		return exp;
 	}
-	~CopySyntaxTree() { };
 };
 
 
 struct FoldConstants : Transformer {
+public:
 	Expression* transformNumber(Number const* number) {
 		Expression* exp = new Number(number->value());
-		return exp;
-		// числа не сворачиваются, поэтому просто возвращаем копию
+		return exp; // числа не сворачиваются, поэтому просто возвращаем копию
 	}
 	Expression* transformBinaryOperation(BinaryOperation const* binop) {
-		// Создаем указатели на левое и правое выражение
 		Expression* nleft = (binop->left())->transform(this); // рекурсивно уходим в левый операнд, чтобы свернуть
 		Expression* nright = (binop->right())->transform(this); // рекурсивно уходим в правый операнд, чтобы свернуть
 		int noperation = binop->operation();
-
-		// Создаем новый объект типа BinaryOperation с новыми указателями
-		BinaryOperation* nbinop = new BinaryOperation(nleft, noperation, nright);
-		//Проверяем на приводимость указателей к типу Number
-		Number* nleft_is_number = dynamic_cast<Number*>(nleft);
+		BinaryOperation* nbinop = new BinaryOperation(nleft, noperation, nright); // Создаем новый объект типа BinaryOperation с новыми указателями
+		Number* nleft_is_number = dynamic_cast<Number*>(nleft); //Проверяем на приводимость указателей к типу Number
 		Number* nright_is_number = dynamic_cast<Number*>(nright);
 		if (nleft_is_number && nright_is_number) {
-			// Вычисляем значение выражения
-			Expression* result = new Number(binop->evaluate());
-			// Освобождаем память
-			delete nbinop;
-			//Возвращаем результат
-			return result;
+			Expression* result = new Number(binop->evaluate()); // Вычисляем значение выражения
+			delete nbinop; // Освобождаем память
+			return result; //Возвращаем результат
 		}
 		return nbinop;
-
 	}
 	Expression* transformFunctionCall(FunctionCall const* fcall) {
-		// Создаем указатель на аргумент
-		Expression* arg = (fcall->arg())->transform(this);// рекурсивно сворачиваем аргумент
-		std::string const& nname = fcall->name();
-
-		// Создаем новый объект типа FunctionCall с новым указателем
-		FunctionCall* nfcall = new FunctionCall(nname, arg);
-
-		// Проверяем на приводимость указателя к типу Number
-		Number* arg_is_number = dynamic_cast<Number*>(arg);
+		Expression* arg = (fcall->arg())->transform(this); // Создаем указатель на аргумент
+		std::string const& nname = fcall->name(); // рекурсивно сворачиваем аргумент
+		FunctionCall* nfcall = new FunctionCall(nname, arg); // Создаем новый объект типа FunctionCall с новым указателем
+		Number* arg_is_number = dynamic_cast<Number*>(arg); // Проверяем на приводимость указателя к типу Number
 		if (arg_is_number) { // если аргумент — число
-			// Вычисляем значение выражения
-			Expression* result = new Number(fcall->evaluate());
-			// Освобождаем память
+			Expression* result = new Number(fcall->evaluate());// Вычисляем значение выражения
 			delete nfcall;
-			//Возвращаем результат
 			return result;
 		}
 		return nfcall;
 	}
 	Expression* transformVariable(Variable const* var) {
 		Expression* exp = new Variable(var->name());
-		return exp;
-		// переменные не сворачиваем, поэтому просто возвращаем копию
+		return exp; // переменные не сворачиваем, поэтому просто возвращаем копию
 	}
-	~FoldConstants() { };
 };
 
 

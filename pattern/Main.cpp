@@ -1,4 +1,4 @@
-#include <iostream>
+п»ї#include <iostream>
 #include <cassert>
 #include <string> 
 
@@ -8,12 +8,12 @@ struct BinaryOperation;
 struct FunctionCall;
 struct Variable;
 
-struct Expression { //базовая абстрактная структура
-	virtual ~Expression() { } //виртуальный деструктор
+struct Expression { //Р±Р°Р·РѕРІР°СЏ Р°Р±СЃС‚СЂР°РєС‚РЅР°СЏ СЃС‚СЂСѓРєС‚СѓСЂР°
+	virtual ~Expression() { } //РІРёСЂС‚СѓР°Р»СЊРЅС‹Р№ РґРµСЃС‚СЂСѓРєС‚РѕСЂ
 
-	virtual double evaluate() const = 0; //абстрактный метод «вычислить»
+	virtual double evaluate() const = 0; //Р°Р±СЃС‚СЂР°РєС‚РЅС‹Р№ РјРµС‚РѕРґ В«РІС‹С‡РёСЃР»РёС‚СЊВ»
 	virtual Expression* transform(Transformer* tr) const = 0;
-	virtual std::string print() const = 0;//абстрактный метод печать
+	virtual std::string print() const = 0;//Р°Р±СЃС‚СЂР°РєС‚РЅС‹Р№ РјРµС‚РѕРґ РїРµС‡Р°С‚СЊ
 };
 
 
@@ -27,22 +27,22 @@ struct Transformer { //pattern Visitor
 };
 
 
-struct Number : Expression {// стуктура «Число»
+struct Number : Expression {// СЃС‚СѓРєС‚СѓСЂР° В«Р§РёСЃР»РѕВ»
 public:
-	Number(double value) : value_(value) {} //конструктор
-	~Number() {}//деструктор, тоже виртуальный
+	Number(double value) : value_(value) {} //РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ
+	~Number() {}//РґРµСЃС‚СЂСѓРєС‚РѕСЂ, С‚РѕР¶Рµ РІРёСЂС‚СѓР°Р»СЊРЅС‹Р№
 
-	double value() const { return value_; } // метод чтения значения числа
-	double evaluate() const { return value_; } // реализация виртуального метода «вычислить»
+	double value() const { return value_; } // РјРµС‚РѕРґ С‡С‚РµРЅРёСЏ Р·РЅР°С‡РµРЅРёСЏ С‡РёСЃР»Р°
+	double evaluate() const { return value_; } // СЂРµР°Р»РёР·Р°С†РёСЏ РІРёСЂС‚СѓР°Р»СЊРЅРѕРіРѕ РјРµС‚РѕРґР° В«РІС‹С‡РёСЃР»РёС‚СЊВ»
 	std::string print() const { return std::to_string(this->value_); }
 	Expression* transform(Transformer* tr) const { return tr->transformNumber(this); }
 
 private:
-	double value_; // само вещественное число
+	double value_; // СЃР°РјРѕ РІРµС‰РµСЃС‚РІРµРЅРЅРѕРµ С‡РёСЃР»Рѕ
 };
 
 
-struct BinaryOperation : Expression { // «Бинарная операция»
+struct BinaryOperation : Expression { // В«Р‘РёРЅР°СЂРЅР°СЏ РѕРїРµСЂР°С†РёСЏВ»
 public:
 	BinaryOperation(Expression const* left, int op, Expression const* right) : left_(left), op_(op), right_(right) { assert(left_ && right_); }
 	~BinaryOperation() {
@@ -56,13 +56,13 @@ public:
 		DIV = '/',
 		MUL = '*'
 	};
-	Expression const* left() const { return left_; } // чтение левого операнда
-	Expression const* right() const { return right_; } // чтение правого операнда
-	int operation() const { return op_; } // чтение символа операции
-	double evaluate() const { // реализация виртуального метода «вычислить»
-		double left = left_->evaluate(); // вычисляем левую часть
-		double right = right_->evaluate(); // вычисляем правую часть
-		switch (op_) { // в зависимости от вида операции, складываем, вычитаем, умножаем или делим левую и правую части
+	Expression const* left() const { return left_; } // С‡С‚РµРЅРёРµ Р»РµРІРѕРіРѕ РѕРїРµСЂР°РЅРґР°
+	Expression const* right() const { return right_; } // С‡С‚РµРЅРёРµ РїСЂР°РІРѕРіРѕ РѕРїРµСЂР°РЅРґР°
+	int operation() const { return op_; } // С‡С‚РµРЅРёРµ СЃРёРјРІРѕР»Р° РѕРїРµСЂР°С†РёРё
+	double evaluate() const { // СЂРµР°Р»РёР·Р°С†РёСЏ РІРёСЂС‚СѓР°Р»СЊРЅРѕРіРѕ РјРµС‚РѕРґР° В«РІС‹С‡РёСЃР»РёС‚СЊВ»
+		double left = left_->evaluate(); // РІС‹С‡РёСЃР»СЏРµРј Р»РµРІСѓСЋ С‡Р°СЃС‚СЊ
+		double right = right_->evaluate(); // РІС‹С‡РёСЃР»СЏРµРј РїСЂР°РІСѓСЋ С‡Р°СЃС‚СЊ
+		switch (op_) { // РІ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё РѕС‚ РІРёРґР° РѕРїРµСЂР°С†РёРё, СЃРєР»Р°РґС‹РІР°РµРј, РІС‹С‡РёС‚Р°РµРј, СѓРјРЅРѕР¶Р°РµРј РёР»Рё РґРµР»РёРј Р»РµРІСѓСЋ Рё РїСЂР°РІСѓСЋ С‡Р°СЃС‚Рё
 		case PLUS: return left + right;
 		case MINUS: return left - right;
 		case DIV: return left / right;
@@ -84,16 +84,16 @@ public:
 	FunctionCall(std::string const& name, Expression const* arg) : name_(name), arg_(arg) {
 		assert(arg_);
 		assert(name_ == "sqrt" || name_ == "abs");
-	} // разрешены только вызов sqrt и abs
-	~FunctionCall() { delete arg_; } // освобождаем память в деструкторе
+	} // СЂР°Р·СЂРµС€РµРЅС‹ С‚РѕР»СЊРєРѕ РІС‹Р·РѕРІ sqrt Рё abs
+	~FunctionCall() { delete arg_; } // РѕСЃРІРѕР±РѕР¶РґР°РµРј РїР°РјСЏС‚СЊ РІ РґРµСЃС‚СЂСѓРєС‚РѕСЂРµ
 
 	std::string const& name() const { return name_; }
-	Expression const* arg() const { return arg_; }// чтение аргумента функции
-	virtual double evaluate() const { // реализация виртуального метода «вычислить»
+	Expression const* arg() const { return arg_; }// С‡С‚РµРЅРёРµ Р°СЂРіСѓРјРµРЅС‚Р° С„СѓРЅРєС†РёРё
+	virtual double evaluate() const { // СЂРµР°Р»РёР·Р°С†РёСЏ РІРёСЂС‚СѓР°Р»СЊРЅРѕРіРѕ РјРµС‚РѕРґР° В«РІС‹С‡РёСЃР»РёС‚СЊВ»
 		if (name_ == "sqrt")
-			return sqrt(arg_->evaluate()); // либо вычисляем корень квадратный
+			return sqrt(arg_->evaluate()); // Р»РёР±Рѕ РІС‹С‡РёСЃР»СЏРµРј РєРѕСЂРµРЅСЊ РєРІР°РґСЂР°С‚РЅС‹Р№
 		return fabs(arg_->evaluate());
-	} // либо модуль — остальные функции запрещены
+	} // Р»РёР±Рѕ РјРѕРґСѓР»СЊ вЂ” РѕСЃС‚Р°Р»СЊРЅС‹Рµ С„СѓРЅРєС†РёРё Р·Р°РїСЂРµС‰РµРЅС‹
 	std::string print() const { return this->name_ + "(" + this->arg_->print() + ")"; }
 	Expression* transform(Transformer* tr) const { return tr->transformFunctionCall(this); }
 
@@ -107,13 +107,13 @@ struct Variable : Expression {
 public:
 	Variable(std::string const& name) : name_(name) {}
 
-	std::string const& name() const { return name_; } // чтение имени переменной
-	double evaluate() const { return 0.0; } // реализация виртуального метода «вычислить»
+	std::string const& name() const { return name_; } // С‡С‚РµРЅРёРµ РёРјРµРЅРё РїРµСЂРµРјРµРЅРЅРѕР№
+	double evaluate() const { return 0.0; } // СЂРµР°Р»РёР·Р°С†РёСЏ РІРёСЂС‚СѓР°Р»СЊРЅРѕРіРѕ РјРµС‚РѕРґР° В«РІС‹С‡РёСЃР»РёС‚СЊВ»
 	std::string print() const { return this->name_; }
 	Expression* transform(Transformer* tr) const { return tr->transformVariable(this); }
 
 private:
-	std::string const name_; // имя переменной
+	std::string const name_; // РёРјСЏ РїРµСЂРµРјРµРЅРЅРѕР№
 };
 
 
@@ -142,29 +142,29 @@ struct FoldConstants : Transformer {
 public:
 	Expression* transformNumber(Number const* number) {
 		Expression* exp = new Number(number->value());
-		return exp; // числа не сворачиваются, поэтому просто возвращаем копию
+		return exp; // С‡РёСЃР»Р° РЅРµ СЃРІРѕСЂР°С‡РёРІР°СЋС‚СЃСЏ, РїРѕСЌС‚РѕРјСѓ РїСЂРѕСЃС‚Рѕ РІРѕР·РІСЂР°С‰Р°РµРј РєРѕРїРёСЋ
 	}
 	Expression* transformBinaryOperation(BinaryOperation const* binop) {
-		Expression* nleft = (binop->left())->transform(this); // рекурсивно уходим в левый операнд, чтобы свернуть
-		Expression* nright = (binop->right())->transform(this); // рекурсивно уходим в правый операнд, чтобы свернуть
+		Expression* nleft = (binop->left())->transform(this); // СЂРµРєСѓСЂСЃРёРІРЅРѕ СѓС…РѕРґРёРј РІ Р»РµРІС‹Р№ РѕРїРµСЂР°РЅРґ, С‡С‚РѕР±С‹ СЃРІРµСЂРЅСѓС‚СЊ
+		Expression* nright = (binop->right())->transform(this); // СЂРµРєСѓСЂСЃРёРІРЅРѕ СѓС…РѕРґРёРј РІ РїСЂР°РІС‹Р№ РѕРїРµСЂР°РЅРґ, С‡С‚РѕР±С‹ СЃРІРµСЂРЅСѓС‚СЊ
 		int noperation = binop->operation();
-		BinaryOperation* nbinop = new BinaryOperation(nleft, noperation, nright); // Создаем новый объект типа BinaryOperation с новыми указателями
-		Number* nleft_is_number = dynamic_cast<Number*>(nleft); //Проверяем на приводимость указателей к типу Number
+		BinaryOperation* nbinop = new BinaryOperation(nleft, noperation, nright); // РЎРѕР·РґР°РµРј РЅРѕРІС‹Р№ РѕР±СЉРµРєС‚ С‚РёРїР° BinaryOperation СЃ РЅРѕРІС‹РјРё СѓРєР°Р·Р°С‚РµР»СЏРјРё
+		Number* nleft_is_number = dynamic_cast<Number*>(nleft); //РџСЂРѕРІРµСЂСЏРµРј РЅР° РїСЂРёРІРѕРґРёРјРѕСЃС‚СЊ СѓРєР°Р·Р°С‚РµР»РµР№ Рє С‚РёРїСѓ Number
 		Number* nright_is_number = dynamic_cast<Number*>(nright);
 		if (nleft_is_number && nright_is_number) {
-			Expression* result = new Number(binop->evaluate()); // Вычисляем значение выражения
+			Expression* result = new Number(binop->evaluate()); // Р’С‹С‡РёСЃР»СЏРµРј Р·РЅР°С‡РµРЅРёРµ РІС‹СЂР°Р¶РµРЅРёСЏ
 			delete nbinop; 
 			return result;
 		}
 		return nbinop;
 	}
 	Expression* transformFunctionCall(FunctionCall const* fcall) {
-		Expression* arg = (fcall->arg())->transform(this); // Создаем указатель на аргумент
-		std::string const& nname = fcall->name(); // рекурсивно сворачиваем аргумент
-		FunctionCall* nfcall = new FunctionCall(nname, arg); // Создаем новый объект типа FunctionCall с новым указателем
-		Number* arg_is_number = dynamic_cast<Number*>(arg); // Проверяем на приводимость указателя к типу Number
-		if (arg_is_number) { // если аргумент — число
-			Expression* result = new Number(fcall->evaluate());// Вычисляем значение выражения
+		Expression* arg = (fcall->arg())->transform(this); // РЎРѕР·РґР°РµРј СѓРєР°Р·Р°С‚РµР»СЊ РЅР° Р°СЂРіСѓРјРµРЅС‚
+		std::string const& nname = fcall->name(); // СЂРµРєСѓСЂСЃРёРІРЅРѕ СЃРІРѕСЂР°С‡РёРІР°РµРј Р°СЂРіСѓРјРµРЅС‚
+		FunctionCall* nfcall = new FunctionCall(nname, arg); // РЎРѕР·РґР°РµРј РЅРѕРІС‹Р№ РѕР±СЉРµРєС‚ С‚РёРїР° FunctionCall СЃ РЅРѕРІС‹Рј СѓРєР°Р·Р°С‚РµР»РµРј
+		Number* arg_is_number = dynamic_cast<Number*>(arg); // РџСЂРѕРІРµСЂСЏРµРј РЅР° РїСЂРёРІРѕРґРёРјРѕСЃС‚СЊ СѓРєР°Р·Р°С‚РµР»СЏ Рє С‚РёРїСѓ Number
+		if (arg_is_number) { // РµСЃР»Рё Р°СЂРіСѓРјРµРЅС‚ вЂ” С‡РёСЃР»Рѕ
+			Expression* result = new Number(fcall->evaluate());// Р’С‹С‡РёСЃР»СЏРµРј Р·РЅР°С‡РµРЅРёРµ РІС‹СЂР°Р¶РµРЅРёСЏ
 			delete nfcall;
 			return result;
 		}
@@ -172,7 +172,7 @@ public:
 	}
 	Expression* transformVariable(Variable const* var) {
 		Expression* exp = new Variable(var->name());
-		return exp; // переменные не сворачиваем, поэтому просто возвращаем копию
+		return exp; // РїРµСЂРµРјРµРЅРЅС‹Рµ РЅРµ СЃРІРѕСЂР°С‡РёРІР°РµРј, РїРѕСЌС‚РѕРјСѓ РїСЂРѕСЃС‚Рѕ РІРѕР·РІСЂР°С‰Р°РµРј РєРѕРїРёСЋ
 	}
 };
 

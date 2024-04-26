@@ -153,8 +153,8 @@ public:
 		Number* nright_is_number = dynamic_cast<Number*>(nright);
 		if (nleft_is_number && nright_is_number) {
 			Expression* result = new Number(binop->evaluate()); // Вычисляем значение выражения
-			delete nbinop; // Освобождаем память
-			return result; //Возвращаем результат
+			delete nbinop; 
+			return result;
 		}
 		return nbinop;
 	}
